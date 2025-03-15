@@ -44,7 +44,7 @@ The steps of the algorithm are:
 
 You can specify various options for the algorithm, such as ratio of points to sample, the baseline probability, and the distance metric to use for determining the closest node.
 
-For example, using the `distance_metric="euclidean"` produces the following image:
+For example, using the `distance_metric="sqeuclidean"` produces the following image:
 
 ![voronoi_euclidean.png](imgs/voronoi_euclidean.png)
 

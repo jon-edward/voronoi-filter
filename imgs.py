@@ -45,5 +45,5 @@ if __name__ == "__main__":
     dithering_images(img)
     voronoi_filter(img, VORONOI_OPTS).save(IMGS_DIR / "voronoi.png")
     voronoi_filter(
-        img, VoronoiFilterOptions(distance_metric="euclidean", seed=VORONOI_OPTS.seed)
+        img, VoronoiFilterOptions(distance_metric="sqeuclidean", seed=VORONOI_OPTS.seed)
     ).save(IMGS_DIR / "voronoi_euclidean.png")
