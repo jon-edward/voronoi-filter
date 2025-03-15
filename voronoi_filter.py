@@ -5,6 +5,7 @@ See README.md for details
 """
 
 from dataclasses import dataclass
+import itertools
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -61,7 +62,7 @@ def voronoi_arrs(
     probabilities = (
         ((np.array(image_edges).astype(np.float32)) / 255.0) + opts.baseline_probability
     ) ** opts.probability_power
-    probabilities = (probabilities / np.sum(probabilities)).swapaxes(0, 1).flatten()
+    probabilities = (probabilities / np.sum(probabilities)).flatten()
 
     rng = np.random.default_rng(opts.seed)
     indices = rng.choice(
@@ -71,8 +72,8 @@ def voronoi_arrs(
         replace=False,
     )
 
-    references = np.column_stack((indices % image.size[1], indices // image.size[1]))
-    colors = np.array([image.getpixel((y, x)) for x, y in references])
+    references = np.column_stack((indices % image.size[0], indices // image.size[0]))
+    colors = np.array([image.getpixel((x, y)) for x, y in references])
 
     return references, colors
 
@@ -83,15 +84,15 @@ def _coords(row, col) -> np.ndarray:
 
     For example, coords(2, 3) returns:
     [[[0 0]
-      [0 1]
-      [0 2]]
+      [1 0]
+      [2 0]]
 
-     [[1 0]
+     [[0 1]
       [1 1]
-      [1 2]]]
+      [2 1]]]
     """
-    return np.array(list(np.ndindex((row, col)))).reshape(row, col, 2)
 
+    return np.array(list(itertools.product(range(row), range(col)))).reshape(row, col, 2).swapaxes(0, 1)
 
 def _dist_argmin(a: np.ndarray, references: np.ndarray, metric: str) -> np.ndarray:
     """
@@ -109,7 +110,7 @@ def voronoi_filter(
     node_coords, node_colors = voronoi_arrs(image, opts)
 
     # Generate the array of closest voronoi nodes per pixel
-    arr = _coords(int(image.size[1]), int(image.size[0]))
+    arr = _coords(int(image.size[0]), int(image.size[1]))
     out_idx = np.array(
         [_dist_argmin(a, node_coords, opts.distance_metric) for a in tqdm(arr)]
     )
