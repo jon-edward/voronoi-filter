@@ -13,11 +13,16 @@ IMGS_DIR = pathlib.Path(__file__).parent / "imgs"
 
 VORONOI_OPTS = VoronoiFilterOptions(seed=42)
 
+
 def find_edges_image(image: Image.Image) -> Image.Image:
     image.filter(ImageFilter.FIND_EDGES).convert("L").save(IMGS_DIR / "find_edges.png")
 
+
 def blurred_edges_image(image: Image.Image) -> Image.Image:
-    image.filter(ImageFilter.FIND_EDGES).convert("L").filter(ImageFilter.GaussianBlur(radius=2)).save(IMGS_DIR / "blurred_edges.png")
+    image.filter(ImageFilter.FIND_EDGES).convert("L").filter(
+        ImageFilter.GaussianBlur(radius=2)
+    ).save(IMGS_DIR / "blurred_edges.png")
+
 
 def dithering_images(image: Image.Image) -> Image.Image:
     node_coords, node_colors = voronoi_arrs(image, VORONOI_OPTS)
@@ -39,4 +44,6 @@ if __name__ == "__main__":
     blurred_edges_image(img)
     dithering_images(img)
     voronoi_filter(img, VORONOI_OPTS).save(IMGS_DIR / "voronoi.png")
-    voronoi_filter(img, VoronoiFilterOptions(distance_metric="euclidean", seed=VORONOI_OPTS.seed)).save(IMGS_DIR / "voronoi_euclidean.png")
+    voronoi_filter(
+        img, VoronoiFilterOptions(distance_metric="euclidean", seed=VORONOI_OPTS.seed)
+    ).save(IMGS_DIR / "voronoi_euclidean.png")

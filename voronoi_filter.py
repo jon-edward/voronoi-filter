@@ -47,7 +47,9 @@ class VoronoiFilterOptions:
     """
 
 
-def voronoi_arrs(image: Image.Image, opts: VoronoiFilterOptions = VoronoiFilterOptions()) -> np.ndarray:
+def voronoi_arrs(
+    image: Image.Image, opts: VoronoiFilterOptions = VoronoiFilterOptions()
+) -> np.ndarray:
     """
     Returns an array of coordinates and colors for voronoi nodes
     """
@@ -105,7 +107,7 @@ def voronoi_filter(
     Returns a voronoi filtered image
     """
     node_coords, node_colors = voronoi_arrs(image, opts)
-    
+
     # Generate the array of closest voronoi nodes per pixel
     arr = _coords(int(image.size[1]), int(image.size[0]))
     out_idx = np.array(
