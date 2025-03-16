@@ -82,23 +82,25 @@ def _coords(row, col) -> np.ndarray:
     """
     Returns an array of coordinates
 
-    For example, coords(2, 3) returns:
-    [[[0 0]
-      [1 0]
-      [2 0]]
-
-     [[0 1]
-      [1 1]
-      [2 1]]]
+    For example, _coords(2, 3) returns:
+    [[0 0]
+     [0 1]
+     [0 2]
+     [1 0]
+     [1 1]
+     [1 2]]
     """
 
-    return np.array(list(itertools.product(range(row), range(col)))).reshape(row, col, 2).swapaxes(0, 1)
+    return np.array(list(itertools.product(range(row), range(col))))
+
 
 def _dist_argmin(a: np.ndarray, references: np.ndarray, metric: str) -> np.ndarray:
     """
-    Returns the index of the reference that is closest to a given coordinate in a
+    Returns the indices of the references that are closest to each coordinate in a
     """
-    return np.argmin(cdist(a, references, metric=metric), axis=1)
+    dists = cdist(a, references, metric=metric)
+    a = np.argmin(dists, axis=1)
+    return a
 
 
 def voronoi_filter(
@@ -110,14 +112,21 @@ def voronoi_filter(
     node_coords, node_colors = voronoi_arrs(image, opts)
 
     # Generate the array of closest voronoi nodes per pixel
-    arr = _coords(int(image.size[0]), int(image.size[1]))
-    out_idx = np.array(
-        [_dist_argmin(a, node_coords, opts.distance_metric) for a in tqdm(arr)]
+    # This is done in chunks to avoid running out of memory
+    out_idx = np.concatenate(
+        [
+            _dist_argmin(a, node_coords, opts.distance_metric)
+            for a in tqdm(np.array_split(_coords(*image.size), len(node_coords)))
+        ]
     )
 
     # Convert the array of closest voronoi nodes per pixel to an image
-    out = []
-    for out_arr in out_idx:
-        out.append([node_colors[i] for i in out_arr])
-    out = np.array(out)
+    out = (
+        np.array([node_colors[idx] for idx in out_idx])
+        .reshape((image.size[0], image.size[1], -1))
+        .transpose((1, 0, 2))
+    )
+    if out.shape[2] == 1:
+        out = out[:, :, 0]
+
     return Image.fromarray(out.astype(np.uint8), mode=image.mode)

@@ -27,12 +27,12 @@ def blurred_edges_image(image: Image.Image) -> Image.Image:
 def dithering_images(image: Image.Image) -> Image.Image:
     node_coords, node_colors = voronoi_arrs(image, VORONOI_OPTS)
     out_image_arr = np.zeros((image.size[1], image.size[0]), dtype=np.uint8)
-    for y, x in node_coords:
+    for x, y in node_coords:
         out_image_arr[y, x] = 255
     Image.fromarray(out_image_arr).save(IMGS_DIR / "dithering_white.png")
 
     out_image_arr = np.zeros((image.size[1], image.size[0], 3), dtype=np.uint8)
-    for y, x, col in zip(node_coords[:, 0], node_coords[:, 1], node_colors):
+    for x, y, col in zip(node_coords[:, 0], node_coords[:, 1], node_colors):
         out_image_arr[y, x] = col
     Image.fromarray(out_image_arr).save(IMGS_DIR / "dithering_color.png")
 
